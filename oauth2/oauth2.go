@@ -188,6 +188,8 @@ func (c *Client) newAuthenticatedRequest(urlToken string, values url.Values) (*h
 			return nil, err
 		}
 	case AuthMethodClientSecretBasic:
+		values.Del("client_secret")
+		values.Del("client_id")
 		req, err = http.NewRequest("POST", urlToken, strings.NewReader(values.Encode()))
 		if err != nil {
 			return nil, err
