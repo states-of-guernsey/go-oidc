@@ -298,7 +298,11 @@ func TestNewAuthenticatedRequest(t *testing.T) {
 		{
 			authMethod: AuthMethodClientSecretBasic,
 			url:        "http://example.com/token",
-			values:     url.Values{},
+			values: url.Values{
+				"client_secret": []string{"some_client_secret"},
+				"client_id":     []string{"some_client_id"},
+				"value_to_keep": []string{"some_value_to_keep"},
+			},
 		},
 		{
 			authMethod: AuthMethodClientSecretPost,
@@ -328,6 +332,19 @@ func TestNewAuthenticatedRequest(t *testing.T) {
 		}
 
 		if tt.authMethod == AuthMethodClientSecretBasic {
+			bodyClientSecret := req.PostFormValue("client_secret")
+			if bodyClientSecret != "" {
+				t.Errorf("case %d: want client_secret == nil, got client_secret == %q", i, bodyClientSecret)
+			}
+			bodyClientID := req.PostFormValue("client_id")
+			if bodyClientID != "" {
+				t.Errorf("case %d: want client_secret == nil, got client_secret == %q", i, bodyClientID)
+			}
+			bodyValueToKeep := req.PostFormValue("value_to_keep")
+			if bodyValueToKeep != "some_value_to_keep" {
+				t.Errorf("case %d: want client_secret == %q, got client_secret == %q", i, "some_value_to_keep", bodyValueToKeep)
+			}
+
 			cid, secret, ok := phttp.BasicAuth(req)
 			if !ok {
 				t.Errorf("case %d: !ok parsing Basic Auth headers", i)
